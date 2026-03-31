@@ -1,0 +1,95 @@
+﻿@page "/"
+@using TinyURL.Models
+@using TinyURL.Services
+@inject UrlService UrlService
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<div class="container py-5" style="max-width: 850px;">
+    <div class="card shadow border-0 p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-7">
+                <input @bind="inputUrl" class="form-control" placeholder="Paste URL here..." />
+            </div>
+            <div class="col-md-2">
+                <div class="form-check pt-2">
+                    <input class="form-check-input" type="checkbox" @bind="isPrivate" id="p">
+                    <label class="form-check-label" for="p">Private</label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100" @onclick="HandleSubmit">Shorten</button>
+            </div>
+        </div>
+    </div>
+
+    <input @bind="searchText" @bind:event="oninput" class="form-control mb-3" placeholder="Search links..." />
+
+    <div class="card shadow border-0">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Original</th>
+                    <th>Short Link</th>
+                    <th>Clicks</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var link in FilteredLinks)
+                {
+                    <tr>
+                        <td class="text-truncate" style="max-width: 200px;">@link.OriginalUrl</td>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <input readonly value="@($"https://localhost:7269/{link.ShortCode}")" class="form-control w-50" />
+                                <button class="btn btn-outline-primary" @onclick="() => Copy(link.ShortCode)">Copy</button>
+                            </div>
+                        </td>
+                        <td class="text-center">@link.ClickCount</td>
+                        <td>
+                            <button class="btn btn-sm btn-link text-danger" @onclick="() => OnDelete(link.Id)">🗑️</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<ShortUrl> links = new();
+    private string inputUrl = "";
+    private bool isPrivate = false;
+    private string searchText = "";
+
+    private IEnumerable<ShortUrl> FilteredLinks => links
+        .Where(l => string.IsNullOrEmpty(searchText) || l.OriginalUrl.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync() => await LoadLinks();
+
+    private async Task LoadLinks() => links = await UrlService.GetPublicLinksAsync();
+
+    private async Task HandleSubmit()
+    {
+        if (!string.IsNullOrEmpty(inputUrl))
+        {
+            await UrlService.CreateLinkAsync(inputUrl, isPrivate);
+            inputUrl = "";
+            await LoadLinks();
+        }
+    }
+
+    private async Task OnDelete(int id)
+    {
+        await UrlService.DeleteLinkAsync(id);
+        await LoadLinks();
+    }
+
+    private async Task Copy(string code)
+    {
+        // MUST point to the Backend Port (7269) for the redirect to work!
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"https://localhost:7269/{code}");
+    }
+}
