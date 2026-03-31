@@ -88,8 +88,7 @@
     }
 
     private async Task Copy(string code)
-    {
-        // MUST point to the Backend Port (7269) for the redirect to work!
+    {        
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"https://localhost:7269/{code}");
     }
 }
