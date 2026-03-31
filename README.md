@@ -30,11 +30,11 @@ The application is split into three main components:
 * **Format:** ARM Template / Bicep.
 * **Description:** Contains the full definition for the Web Apps, SQL Server, and Storage accounts.
 
-### 5. Environment Variables & Secrets (5 pts)
+### 5. Environment Variables & Secrets
 * **Database:** `DefaultConnection` stored in Azure Connection Strings.
 * **Secrets:** `SecretToken` stored in Azure App Settings (not in `appsettings.json`).
 
-### 6. Logging (5 pts)
+### 6. Logging
 * **Sink:** Azure Blob Storage.
 * **Description:** Application logs are automatically streamed to a storage container for audit and debugging.
 
