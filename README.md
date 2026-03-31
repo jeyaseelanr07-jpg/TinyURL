@@ -10,7 +10,7 @@ The application is split into three main components:
 
 ---
 
-## 💎 Part 3: Infrastructure & Cloud (40 Points)
+## 💎 Part 3: Infrastructure & Cloud
 
 ### 1. Hosted Database 
 * **Provider:** Azure SQL Database (`tinyURLdb`).
